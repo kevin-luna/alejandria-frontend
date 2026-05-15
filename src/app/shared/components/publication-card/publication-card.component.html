@@ -1,0 +1,77 @@
+<div class="pub-card">
+
+  <!-- Header -->
+  <div class="card-header">
+    <span class="pub-id">#{{ publication.id }}</span>
+    <app-pub-type-badge [pubType]="publication.pubType" />
+    @if (!publication.isActive) {
+      <span class="badge-revoked">REVOCADA</span>
+    }
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+    <h2 class="pub-title">{{ publication.title }}</h2>
+
+    <!-- Authors -->
+    <div class="field-row">
+      <mat-icon class="field-icon">people</mat-icon>
+      <div class="authors-wrap">
+        @if (publication.authorNames.length > 0) {
+          @for (name of publication.authorNames; track $index) {
+            <span class="author-chip">{{ name }}</span>
+          }
+        } @else {
+          <span class="empty-field">Sin autores registrados</span>
+        }
+      </div>
+    </div>
+
+    <!-- Institution -->
+    @if (publication.institution) {
+      <div class="field-row">
+        <mat-icon class="field-icon">account_balance</mat-icon>
+        <span>{{ publication.institution }}</span>
+      </div>
+    }
+
+    <!-- DOI -->
+    @if (publication.doi) {
+      <div class="field-row">
+        <mat-icon class="field-icon">tag</mat-icon>
+        <span class="mono">{{ publication.doi }}</span>
+      </div>
+    }
+
+    <div class="divider"></div>
+
+    <!-- Metadata grid -->
+    <div class="meta-grid">
+      <div class="meta-cell">
+        <span class="meta-label">Fecha de registro</span>
+        <span class="meta-value">{{ registrationDateStr }}</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Registrante</span>
+        <span class="meta-value mono">{{ formatAddress(publication.registrant) }}</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Hash SHA-256</span>
+        <span class="meta-value mono">{{ shortHash }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    @if (publication.ipfsHash) {
+      <a [href]="ipfsUrl" target="_blank" rel="noopener noreferrer" class="btn-ipfs">
+        <mat-icon>open_in_new</mat-icon>
+        Ver documento en IPFS
+      </a>
+    } @else {
+      <span class="no-ipfs">Sin documento adjunto en IPFS</span>
+    }
+  </div>
+
+</div>
