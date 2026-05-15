@@ -1,0 +1,230 @@
+<div class="page-container">
+
+  <header class="page-header">
+    <h1 class="page-title">Registrar Publicación</h1>
+    <p class="page-subtitle">
+      Registra la propiedad intelectual de una publicación académica de forma inmutable en blockchain.
+      Se requiere cartera MetaMask conectada para firmar la transacción.
+    </p>
+  </header>
+
+  <!-- Wallet warning -->
+  @if (!metamask.isConnected()) {
+    <div class="wallet-warning">
+      <mat-icon>account_balance_wallet</mat-icon>
+      <span>
+        Necesitas conectar tu wallet para registrar.
+        <button mat-button class="btn-inline-connect" (click)="metamask.connect()">Conectar ahora</button>
+      </span>
+    </div>
+  }
+
+  <!-- Success banner -->
+  @if (result()) {
+    <div class="success-banner">
+      <div class="success-title">
+        <mat-icon>check_circle</mat-icon>
+        Publicación registrada correctamente
+      </div>
+      @if (result()!.publicationId !== null) {
+        <p>ID asignado: <strong>#{{ result()!.publicationId }}</strong></p>
+      }
+      <p class="tx-hash">Tx: <span class="mono">{{ result()!.txHash }}</span></p>
+      <a routerLink="/buscar" class="link-search">Ver publicación →</a>
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="reg-form" novalidate>
+
+    <!-- ── Datos generales ─────────────────────────────────── -->
+    <section class="form-section">
+      <h2 class="section-title">Datos de la Publicación</h2>
+
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>Título *</mat-label>
+        <input matInput formControlName="title" placeholder="Ej. Análisis de redes neuronales aplicadas a…" />
+        @if (form.get('title')?.invalid && form.get('title')?.touched) {
+          <mat-error>El título es obligatorio (mínimo 3 caracteres).</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="field-row-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de Publicación *</mat-label>
+          <mat-select formControlName="pubType">
+            @for (type of publicationTypes; track type.value) {
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
+            }
+          </mat-select>
+          @if (form.get('pubType')?.invalid && form.get('pubType')?.touched) {
+            <mat-error>Selecciona un tipo.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Institución</mat-label>
+          <input matInput formControlName="institution" placeholder="Ej. UNAM, CINVESTAV…" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>DOI / ISBN / Identificador externo</mat-label>
+        <input matInput formControlName="doi" placeholder="Ej. 10.1000/xyz123" />
+      </mat-form-field>
+    </section>
+
+    <mat-divider />
+
+    <!-- ── Autores ──────────────────────────────────────────── -->
+    <section class="form-section">
+      <div class="section-header">
+        <h2 class="section-title">Autores</h2>
+        <button type="button" mat-stroked-button class="btn-add-author" (click)="addAuthor()">
+          <mat-icon>person_add</mat-icon>
+          Agregar Autor
+        </button>
+      </div>
+
+      <div formArrayName="authors" class="authors-list">
+        @for (author of authors.controls; track $index) {
+          <div [formGroupName]="$index" class="author-entry">
+            <span class="author-index">{{ $index + 1 }}</span>
+
+            <mat-form-field appearance="outline" class="author-name-field">
+              <mat-label>Nombre *</mat-label>
+              <input matInput formControlName="name" placeholder="Nombre completo del autor" />
+              @if (author.get('name')?.invalid && author.get('name')?.touched) {
+                <mat-error>El nombre es obligatorio.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="author-addr-field">
+              <mat-label>Dirección Wallet (opcional)</mat-label>
+              <input matInput formControlName="address" placeholder="0x…" />
+              @if (author.get('address')?.invalid && author.get('address')?.touched) {
+                <mat-error>Dirección Ethereum inválida.</mat-error>
+              }
+            </mat-form-field>
+
+            <button
+              type="button"
+              mat-icon-button
+              class="btn-remove-author"
+              [disabled]="authors.length === 1"
+              (click)="removeAuthor($index)"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+
+    <mat-divider />
+
+    <!-- ── Documento ────────────────────────────────────────── -->
+    <section class="form-section">
+      <h2 class="section-title">Documento</h2>
+      <p class="section-hint">
+        Sube el archivo para calcular automáticamente el hash SHA-256 y subir a IPFS,
+        o ingresa los valores manualmente.
+      </p>
+
+      <!-- File picker -->
+      <input
+        #fileInput
+        type="file"
+        class="file-input-hidden"
+        accept=".pdf,.doc,.docx,.txt"
+        (change)="onFileSelected($event)"
+      />
+
+      <div class="file-upload-area">
+        <button
+          type="button"
+          mat-stroked-button
+          class="btn-upload"
+          [disabled]="uploadStep() === 'hashing' || uploadStep() === 'uploading'"
+          (click)="triggerFileInput(fileInput)"
+        >
+          <mat-icon>upload_file</mat-icon>
+          Seleccionar documento
+        </button>
+
+        <div class="upload-status">
+          @switch (uploadStep()) {
+            @case ('hashing') {
+              <mat-spinner diameter="18" />
+              <span>Calculando hash SHA-256…</span>
+            }
+            @case ('uploading') {
+              <mat-spinner diameter="18" />
+              <span>Subiendo a IPFS…</span>
+            }
+            @case ('done') {
+              <mat-icon class="status-ok">check_circle</mat-icon>
+              <span>{{ selectedFileName() }} — subido correctamente</span>
+            }
+            @case ('error') {
+              <mat-icon class="status-err">error</mat-icon>
+              <span>{{ uploadError() }}</span>
+            }
+            @default {
+              @if (selectedFileName()) {
+                <span class="file-name">{{ selectedFileName() }}</span>
+              }
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Hash fields -->
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>Hash SHA-256 del documento (bytes32) *</mat-label>
+        <input matInput formControlName="contentHash" placeholder="0x…" class="mono-input" />
+        <mat-hint>32 bytes en hexadecimal: 0x seguido de 64 caracteres hex</mat-hint>
+        @if (form.get('contentHash')?.invalid && form.get('contentHash')?.touched) {
+          <mat-error>Debe ser un bytes32 válido (0x + 64 hex).</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>CID de IPFS</mat-label>
+        <input matInput formControlName="ipfsHash" placeholder="Qm… o bafk…" class="mono-input" />
+        <mat-hint>Identificador del archivo en la red IPFS</mat-hint>
+      </mat-form-field>
+    </section>
+
+    <mat-divider />
+
+    <!-- ── Error de envío ───────────────────────────────────── -->
+    @if (submitError()) {
+      <div class="submit-error">
+        <mat-icon>error_outline</mat-icon>
+        {{ submitError() }}
+      </div>
+    }
+
+    <!-- ── Botón enviar ─────────────────────────────────────── -->
+    <div class="form-actions">
+      <button
+        type="submit"
+        mat-flat-button
+        class="btn-submit"
+        [disabled]="form.invalid || isSubmitting || !metamask.isConnected()"
+      >
+        @if (isSubmitting) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon>how_to_reg</mat-icon>
+        }
+        {{ submitStatusLabel }}
+      </button>
+
+      <p class="submit-hint">
+        Al enviar, MetaMask solicitará tu firma para registrar la transacción en la blockchain.
+      </p>
+    </div>
+
+  </form>
+</div>
