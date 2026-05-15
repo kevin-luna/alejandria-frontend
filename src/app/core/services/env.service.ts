@@ -12,4 +12,13 @@ export class EnvService {
   get chainIdHex(): `0x${string}` {
     return `0x${this.chainId.toString(16)}`;
   }
+
+  get explorerUrl(): string {
+    const explorers: Record<number, string> = {
+      1:        'https://etherscan.io',
+      11155111: 'https://sepolia.etherscan.io',
+      17000:    'https://holesky.etherscan.io',
+    };
+    return explorers[this.chainId] ?? '';
+  }
 }
