@@ -1,0 +1,113 @@
+<div class="cert-wrapper">
+
+  <!-- Barra de acción (se oculta al imprimir) -->
+  <div class="action-bar no-print">
+    <div class="action-left">
+      <mat-icon class="action-icon">check_circle</mat-icon>
+      <span>Publicación registrada exitosamente</span>
+    </div>
+    <button mat-flat-button class="btn-download" (click)="print()">
+      <mat-icon>picture_as_pdf</mat-icon>
+      Descargar certificado
+    </button>
+  </div>
+
+  <!-- Certificado -->
+  <div class="certificate">
+
+    <!-- Encabezado -->
+    <header class="cert-header">
+      <div class="cert-logo-block">
+        <span class="cert-logo-letter">A</span>
+      </div>
+      <div class="cert-title-block">
+        <h1 class="cert-brand">ALEJANDRÍA</h1>
+        <p class="cert-brand-sub">Repositorio Académico Descentralizado · Ethereum</p>
+      </div>
+    </header>
+
+    <div class="cert-banner">
+      CERTIFICADO DE REGISTRO DE PROPIEDAD INTELECTUAL
+    </div>
+
+    <!-- Cuerpo -->
+    <section class="cert-body">
+
+      <div class="cert-meta-row">
+        @if (data.publicationId !== null) {
+          <span class="cert-id">Registro <strong>#{{ data.publicationId }}</strong></span>
+        }
+        <span class="cert-date">{{ formattedDate }}</span>
+      </div>
+
+      <h2 class="cert-pub-title">{{ data.title }}</h2>
+
+      <div class="cert-details">
+        <div class="detail-row">
+          <span class="detail-label">Tipo de publicación</span>
+          <span class="detail-value">{{ pubTypeLabel }}</span>
+        </div>
+        @if (data.institution) {
+          <div class="detail-row">
+            <span class="detail-label">Institución</span>
+            <span class="detail-value">{{ data.institution }}</span>
+          </div>
+        }
+        @if (data.doi) {
+          <div class="detail-row">
+            <span class="detail-label">DOI / Identificador</span>
+            <span class="detail-value mono">{{ data.doi }}</span>
+          </div>
+        }
+        <div class="detail-row">
+          <span class="detail-label">Autor(es)</span>
+          <span class="detail-value">{{ data.authorNames.join(' · ') }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Dirección registrante</span>
+          <span class="detail-value mono small">{{ data.registrant }}</span>
+        </div>
+      </div>
+
+      <div class="cert-proof">
+        <div class="proof-item">
+          <span class="proof-label">Hash SHA-256 del documento (bytes32)</span>
+          <span class="proof-value mono">{{ data.contentHash }}</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-label">Hash de transacción blockchain</span>
+          <span class="proof-value mono">{{ data.txHash }}</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Pie con QRs -->
+    <footer class="cert-footer">
+      <div class="cert-divider"></div>
+
+      @if (txQrDataUrl || ipfsQrDataUrl) {
+        <div class="qr-row">
+          @if (txQrDataUrl) {
+            <div class="qr-item">
+              <img [src]="txQrDataUrl" alt="QR transacción" class="qr-img" />
+              <span class="qr-label">Verificar transacción</span>
+            </div>
+          }
+          @if (ipfsQrDataUrl) {
+            <div class="qr-item">
+              <img [src]="ipfsQrDataUrl" alt="QR IPFS" class="qr-img" />
+              <span class="qr-label">Documento en IPFS</span>
+            </div>
+          }
+        </div>
+      }
+
+      <p class="cert-footer-note">
+        Este certificado es prueba criptográfica emitida por la red blockchain Ethereum.
+        El hash SHA-256 garantiza la inmutabilidad e integridad del documento registrado.
+      </p>
+    </footer>
+
+  </div>
+</div>
