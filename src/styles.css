@@ -1,3 +1,95 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+@import 'primeicons/primeicons.css';
+
+/* ─── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --clr-primary:       #1565C0;
+  --clr-primary-dark:  #0D47A1;
+  --clr-primary-light: #1976D2;
+
+  --clr-white:         #FFFFFF;
+  --clr-gray-50:       #FAFAFA;
+  --clr-gray-100:      #F5F5F5;
+  --clr-gray-200:      #EEEEEE;
+  --clr-gray-300:      #E0E0E0;
+  --clr-gray-500:      #9E9E9E;
+  --clr-gray-700:      #616161;
+  --clr-gray-900:      #212121;
+  --clr-border:        #E0E0E0;
+}
+
+/* ─── Reset / Base ──────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: var(--clr-gray-50);
+  color: var(--clr-gray-900);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Remove all border-radius (rectos) ────────────────────── */
+.mdc-button,
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-flat-button,
+.mat-mdc-stroked-button,
+.mat-mdc-icon-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  border-radius: 0 !important;
+}
+
+.mat-mdc-form-field .mdc-notched-outline__leading {
+  border-radius: 0 !important;
+}
+
+.mat-mdc-form-field .mdc-notched-outline__trailing {
+  border-radius: 0 !important;
+}
+
+.mat-mdc-snack-bar-container,
+.mat-mdc-dialog-container,
+.mat-mdc-card,
+.mat-mdc-chip {
+  border-radius: 0 !important;
+}
+
+/* PrimeNG card overrides */
+.p-card {
+  border-radius: 0 !important;
+}
+
+/* ─── Override Angular Material primary color ───────────────── */
+.mat-primary {
+  --mdc-filled-button-container-color: var(--clr-primary);
+}
+
+/* ─── mat-icon base fix ─────────────────────────────────────── */
+/* Ensures font ligatures render at the intended size */
+mat-icon {
+  font-family: 'Material Icons' !important;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ─── Utility ───────────────────────────────────────────────── */
+.mat-spinner circle {
+  stroke: var(--clr-primary);
+}
