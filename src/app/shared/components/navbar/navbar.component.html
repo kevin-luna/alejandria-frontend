@@ -1,0 +1,42 @@
+<mat-toolbar class="navbar">
+  <a routerLink="/" class="brand">
+    <svg class="brand-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 19V6.5C4 5.12 5.12 4 6.5 4H20V17H6.5C5.67 17 5 17.67 5 18.5S5.67 20 6.5 20H20V22H6.5C5.12 22 4 20.88 4 19.5V19Z" fill="currentColor"/>
+      <path d="M16 9H9V11H16V9Z" fill="white"/>
+    </svg>
+    <span class="brand-name">Alejandría</span>
+  </a>
+
+  <span class="flex-spacer"></span>
+
+  <nav class="nav-links">
+    <a routerLink="/buscar" routerLinkActive="nav-link-active" class="nav-link">Buscar</a>
+    <a routerLink="/registrar" routerLinkActive="nav-link-active" class="nav-link">Registrar</a>
+  </nav>
+
+  <div class="wallet-area">
+    @switch (metamask.status()) {
+      @case ('connecting') {
+        <div class="connecting-indicator">
+          <mat-spinner diameter="18" />
+          <span>Conectando…</span>
+        </div>
+      }
+      @case ('connected') {
+        <div class="account-chip">
+          <span class="account-dot"></span>
+          <span class="account-address">{{ metamask.formatAddress(metamask.account()!) }}</span>
+        </div>
+        <button mat-stroked-button class="btn-disconnect" (click)="disconnect()">
+          Desconectar
+        </button>
+      }
+      @default {
+        <button mat-flat-button class="btn-connect" (click)="connect()">
+          <mat-icon>account_balance_wallet</mat-icon>
+          Conectar Wallet
+        </button>
+      }
+    }
+  </div>
+</mat-toolbar>
