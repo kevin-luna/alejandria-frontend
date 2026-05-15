@@ -42,7 +42,7 @@
 
       <mat-form-field appearance="outline" class="field-full">
         <mat-label>Título *</mat-label>
-        <input matInput formControlName="title" placeholder="Ej. Análisis de redes neuronales aplicadas a…" />
+        <input matInput formControlName="title" placeholder="Ej. Análisis de redes neuronales aplicadas a…" class="uppercase-input" (blur)="normalizeField('title')" />
         @if (form.get('title')?.invalid && form.get('title')?.touched) {
           <mat-error>El título es obligatorio (mínimo 3 caracteres).</mat-error>
         }
@@ -63,13 +63,13 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Institución</mat-label>
-          <input matInput formControlName="institution" placeholder="Ej. UNAM, CINVESTAV…" />
+          <input matInput formControlName="institution" placeholder="Ej. UNAM, CINVESTAV…" class="uppercase-input" (blur)="normalizeField('institution')" />
         </mat-form-field>
       </div>
 
       <mat-form-field appearance="outline" class="field-full">
         <mat-label>DOI / ISBN / Identificador externo</mat-label>
-        <input matInput formControlName="doi" placeholder="Ej. 10.1000/xyz123" />
+        <input matInput formControlName="doi" placeholder="Ej. 10.1000/xyz123" (blur)="normalizeField('doi')" />
       </mat-form-field>
     </section>
 
@@ -92,7 +92,7 @@
 
             <mat-form-field appearance="outline" class="author-name-field">
               <mat-label>Nombre *</mat-label>
-              <input matInput formControlName="name" placeholder="Nombre completo del autor" />
+              <input matInput formControlName="name" placeholder="Nombre completo del autor" class="uppercase-input" (blur)="normalizeAuthorName($index)" />
               @if (author.get('name')?.invalid && author.get('name')?.touched) {
                 <mat-error>El nombre es obligatorio.</mat-error>
               }

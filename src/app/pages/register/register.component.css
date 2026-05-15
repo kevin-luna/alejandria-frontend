@@ -255,6 +255,10 @@
   font-size: 0.85rem;
 }
 
+.uppercase-input {
+  text-transform: uppercase;
+}
+
 /* ── Submit area ───────────────────────────────────────── */
 .submit-error {
   display: flex;
