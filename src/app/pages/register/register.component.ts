@@ -17,6 +17,7 @@ import { RouterLink } from '@angular/router';
 import { ContractService, type RegisterResult } from '../../core/services/contract.service';
 import { MetaMaskService } from '../../core/services/metamask.service';
 import { PinataService } from '../../core/services/pinata.service';
+import { TextNormalizer, type TextFieldKey } from '../../core/services/text-normalizer.service';
 import {
   PUBLICATION_TYPE_LABELS,
   PublicationType,
@@ -49,6 +50,7 @@ export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly contract = inject(ContractService);
   private readonly pinata = inject(PinataService);
+  private readonly normalizer = inject(TextNormalizer);
   readonly metamask = inject(MetaMaskService);
 
   readonly publicationTypes = Object.entries(PUBLICATION_TYPE_LABELS).map(
@@ -86,6 +88,23 @@ export class RegisterComponent {
       name: ['', Validators.required],
       address: ['', Validators.pattern(ADDRESS_PATTERN)],
     });
+  }
+
+  normalizeField(field: TextFieldKey): void {
+    const ctrl = this.form.get(field);
+    if (!ctrl) return;
+    ctrl.setValue(this.normalizer.normalize(ctrl.value ?? '', field), { emitEvent: false });
+  }
+
+  normalizeAuthorName(index: number): void {
+    const ctrl = this.authors.at(index)?.get('name');
+    if (!ctrl) return;
+    ctrl.setValue(this.normalizer.normalize(ctrl.value ?? '', 'authorName'), { emitEvent: false });
+  }
+
+  private normalizeAllFields(): void {
+    (['title', 'institution', 'doi'] as TextFieldKey[]).forEach((f) => this.normalizeField(f));
+    this.authors.controls.forEach((_, i) => this.normalizeAuthorName(i));
   }
 
   addAuthor(): void {
@@ -138,6 +157,8 @@ export class RegisterComponent {
       this.submitError.set('Conecta tu wallet MetaMask antes de registrar.');
       return;
     }
+
+    this.normalizeAllFields();
 
     const { title, pubType, institution, doi, contentHash, ipfsHash, authors } =
       this.form.value;
