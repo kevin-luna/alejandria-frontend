@@ -93,3 +93,11 @@ mat-icon {
 .mat-spinner circle {
   stroke: var(--clr-primary);
 }
+
+/* ─── Print ─────────────────────────────────────────────────── */
+@media print {
+  app-navbar,
+  .no-print {
+    display: none !important;
+  }
+}
