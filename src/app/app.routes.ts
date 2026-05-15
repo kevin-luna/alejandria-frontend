@@ -21,6 +21,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'certificado',
+    loadComponent: () =>
+      import('./pages/certificate/certificate.component').then(
+        (m) => m.CertificateComponent
+      ),
+  },
+  {
     path: '**',
     redirectTo: 'buscar',
   },
