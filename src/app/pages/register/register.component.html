@@ -19,21 +19,6 @@
     </div>
   }
 
-  <!-- Success banner -->
-  @if (result()) {
-    <div class="success-banner">
-      <div class="success-title">
-        <mat-icon>check_circle</mat-icon>
-        Publicación registrada correctamente
-      </div>
-      @if (result()!.publicationId !== null) {
-        <p>ID asignado: <strong>#{{ result()!.publicationId }}</strong></p>
-      }
-      <p class="tx-hash">Tx: <span class="mono">{{ result()!.txHash }}</span></p>
-      <a routerLink="/buscar" class="link-search">Ver publicación →</a>
-    </div>
-  }
-
   <form [formGroup]="form" (ngSubmit)="submit()" class="reg-form" novalidate>
 
     <!-- ── Datos generales ─────────────────────────────────── -->

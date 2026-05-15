@@ -13,11 +13,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { RouterLink } from '@angular/router';
-import { ContractService, type RegisterResult } from '../../core/services/contract.service';
+import { Router, RouterLink } from '@angular/router';
+import { ContractService } from '../../core/services/contract.service';
 import { MetaMaskService } from '../../core/services/metamask.service';
 import { PinataService } from '../../core/services/pinata.service';
 import { TextNormalizer, type TextFieldKey } from '../../core/services/text-normalizer.service';
+import { CertificateStateService } from '../../core/services/certificate-state.service';
 import {
   PUBLICATION_TYPE_LABELS,
   PublicationType,
@@ -61,9 +62,11 @@ export class RegisterComponent {
   readonly uploadError = signal<string | null>(null);
   readonly selectedFileName = signal<string | null>(null);
 
-  readonly submitStep = signal<SubmitStep>('idle');
+  private readonly certState = inject(CertificateStateService);
+  private readonly router    = inject(Router);
+
+  readonly submitStep  = signal<SubmitStep>('idle');
   readonly submitError = signal<string | null>(null);
-  readonly result = signal<RegisterResult | null>(null);
 
   readonly form: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3)]],
@@ -172,7 +175,6 @@ export class RegisterComponent {
 
     this.submitStep.set('simulating');
     this.submitError.set(null);
-    this.result.set(null);
 
     try {
       this.submitStep.set('awaiting-wallet');
@@ -186,10 +188,22 @@ export class RegisterComponent {
         authorNames,
         authorAddresses,
       });
-      this.result.set(res);
-      this.submitStep.set('done');
+      this.certState.set({
+        publicationId:    res.publicationId,
+        txHash:           res.txHash,
+        title,
+        pubType,
+        institution:      institution ?? '',
+        doi:              doi ?? '',
+        contentHash,
+        ipfsHash:         ipfsHash ?? '',
+        authorNames,
+        registrant:       this.metamask.account()!,
+        registrationDate: new Date(),
+      });
       this.form.reset();
       this.resetAuthors();
+      this.router.navigate(['/certificado']);
     } catch (e) {
       const raw = e instanceof Error ? e.message : String(e);
       this.submitError.set(this.parseContractError(raw));
