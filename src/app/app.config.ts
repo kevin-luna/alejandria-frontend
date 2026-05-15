@@ -5,11 +5,13 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
 import { routes } from './app.routes';
+import { TextNormalizer, TextNormalizerService } from './core/services/text-normalizer.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
+    { provide: TextNormalizer, useClass: TextNormalizerService },
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
