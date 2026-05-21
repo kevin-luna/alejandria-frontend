@@ -76,7 +76,7 @@ export class RegisterComponent {
     institution: [''],
     doi: [''],
     contentHash: ['', [Validators.required, Validators.pattern(BYTES32_PATTERN)]],
-    ipfsHash: [''],
+    ipfsHash: [{ value: '', disabled: true }],
     authors: this.fb.array([this.buildAuthorGroup()]),
   });
 
@@ -205,7 +205,7 @@ export class RegisterComponent {
     this.normalizeAllFields();
 
     const { title, pubType, institution, doi, contentHash, ipfsHash, authors } =
-      this.form.value;
+      this.form.getRawValue();
 
     const authorNames = (authors as { name: string; address: string }[]).map(
       (a) => a.name
