@@ -78,4 +78,15 @@ export const ALEJANDRIA_ABI = [
       { name: 'pubType', type: 'uint8', indexed: false },
     ],
   },
+  // Custom errors
+  { type: 'error', name: 'NotAuthorized',                 inputs: [] },
+  { type: 'error', name: 'PublicationNotFound',           inputs: [{ name: 'id', type: 'uint256' }] },
+  { type: 'error', name: 'PublicationInactive',           inputs: [{ name: 'id', type: 'uint256' }] },
+  { type: 'error', name: 'ContentHashAlreadyRegistered',  inputs: [{ name: 'contentHash', type: 'bytes32' }] },
+  { type: 'error', name: 'DoiAlreadyRegistered',          inputs: [{ name: 'doi', type: 'string' }] },
+  { type: 'error', name: 'HashNotFound',                  inputs: [{ name: 'contentHash', type: 'bytes32' }] },
+  { type: 'error', name: 'DoiNotFound',                   inputs: [{ name: 'doi', type: 'string' }] },
+  { type: 'error', name: 'InvalidContentHash',            inputs: [] },
+  { type: 'error', name: 'EmptyTitle',                    inputs: [] },
+  { type: 'error', name: 'ZeroAddress',                   inputs: [] },
 ] as const;
