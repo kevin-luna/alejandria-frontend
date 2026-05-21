@@ -36,7 +36,7 @@ export class ContractService {
 
   private readonly chain = defineChain({
     id: this.env.chainId,
-    name: 'Localhost',
+    name: ({ 1: 'Ethereum', 11155111: 'Sepolia', 17000: 'Holesky', 31337: 'Localhost' } as Record<number, string>)[this.env.chainId] ?? 'Custom Network',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
       default: { http: [this.env.rpcUrl] },
@@ -109,7 +109,17 @@ export class ContractService {
       ipfsHash: params.ipfsHash,
     }] as const;
 
-    // Simulate first to surface contract errors before sending tx
+    const wallet = this.getWalletClient();
+
+    // Switch to the target chain first, before simulate or write
+    try {
+      await wallet.switchChain({ id: this.chain.id });
+    } catch {
+      // Chain not yet in MetaMask — add it (MetaMask will also prompt to switch)
+      await wallet.addChain({ chain: this.chain });
+    }
+
+    // Simulate to surface contract errors before spending gas
     await this.publicClient.simulateContract({
       address: this.env.contractAddress,
       abi: ALEJANDRIA_ABI,
@@ -118,7 +128,6 @@ export class ContractService {
       account,
     });
 
-    const wallet = this.getWalletClient();
     const txHash = await wallet.writeContract({
       address: this.env.contractAddress,
       abi: ALEJANDRIA_ABI,
