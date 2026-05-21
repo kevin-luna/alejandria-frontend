@@ -1,29 +1,43 @@
+const PUBLICATION_OUTPUT = {
+  name: '',
+  type: 'tuple',
+  components: [
+    { name: 'id', type: 'uint256' },
+    { name: 'title', type: 'string' },
+    { name: 'authorNames', type: 'string[]' },
+    { name: 'authorAddresses', type: 'address[]' },
+    { name: 'pubType', type: 'uint8' },
+    { name: 'registrationDate', type: 'uint256' },
+    { name: 'contentHash', type: 'bytes32' },
+    { name: 'institution', type: 'string' },
+    { name: 'doi', type: 'string' },
+    { name: 'ipfsHash', type: 'string' },
+    { name: 'registrant', type: 'address' },
+    { name: 'isActive', type: 'bool' },
+  ],
+} as const;
+
 export const ALEJANDRIA_ABI = [
   {
     name: 'getPublication',
     type: 'function',
     stateMutability: 'view',
     inputs: [{ name: 'id', type: 'uint256' }],
-    outputs: [
-      {
-        name: '',
-        type: 'tuple',
-        components: [
-          { name: 'id', type: 'uint256' },
-          { name: 'title', type: 'string' },
-          { name: 'authorNames', type: 'string[]' },
-          { name: 'authorAddresses', type: 'address[]' },
-          { name: 'pubType', type: 'uint8' },
-          { name: 'registrationDate', type: 'uint256' },
-          { name: 'contentHash', type: 'bytes32' },
-          { name: 'institution', type: 'string' },
-          { name: 'doi', type: 'string' },
-          { name: 'ipfsHash', type: 'string' },
-          { name: 'registrant', type: 'address' },
-          { name: 'isActive', type: 'bool' },
-        ],
-      },
-    ],
+    outputs: [PUBLICATION_OUTPUT],
+  },
+  {
+    name: 'getByHash',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'contentHash', type: 'bytes32' }],
+    outputs: [PUBLICATION_OUTPUT],
+  },
+  {
+    name: 'getByDoi',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'doi', type: 'string' }],
+    outputs: [PUBLICATION_OUTPUT],
   },
   {
     name: 'totalPublications',
@@ -31,30 +45,6 @@ export const ALEJANDRIA_ABI = [
     stateMutability: 'view',
     inputs: [],
     outputs: [{ name: '', type: 'uint256' }],
-  },
-  {
-    name: 'verifyByHash',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ name: 'contentHash', type: 'bytes32' }],
-    outputs: [
-      { name: 'registered', type: 'bool' },
-      { name: 'id', type: 'uint256' },
-    ],
-  },
-  {
-    name: 'getByRegistrant',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ name: 'registrant', type: 'address' }],
-    outputs: [{ name: '', type: 'uint256[]' }],
-  },
-  {
-    name: 'getByAuthor',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ name: 'author', type: 'address' }],
-    outputs: [{ name: '', type: 'uint256[]' }],
   },
   {
     name: 'register',
