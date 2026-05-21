@@ -3,33 +3,57 @@
   <header class="page-header">
     <h1 class="page-title">Buscar Publicación</h1>
     <p class="page-subtitle">
-      Consulta el registro on-chain de una publicación académica usando su ID único.
+      Consulta el registro on-chain de una publicación académica por ID, hash de contenido o DOI.
       La búsqueda es pública y no requiere cartera digital.
     </p>
   </header>
 
   <section class="search-section">
+
+    <div class="mode-selector">
+      <span class="mode-label">Buscar por</span>
+      <mat-radio-group
+        [value]="searchMode()"
+        (change)="onModeChange($event.value)"
+        class="radio-group"
+        aria-label="Modo de búsqueda"
+      >
+        <mat-radio-button value="id">
+          <mat-icon class="radio-icon">tag</mat-icon>
+          ID
+        </mat-radio-button>
+        <mat-radio-button value="hash">
+          <mat-icon class="radio-icon">fingerprint</mat-icon>
+          Hash
+        </mat-radio-button>
+        <mat-radio-button value="doi">
+          <mat-icon class="radio-icon">link</mat-icon>
+          DOI
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+
     <div class="search-row">
-      <mat-form-field appearance="outline" class="id-field">
-        <mat-label>ID de Publicación</mat-label>
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>{{ inputLabel }}</mat-label>
         <input
           matInput
-          type="number"
-          min="1"
-          step="1"
-          placeholder="Ej. 1"
-          [(ngModel)]="searchId"
+          [type]="searchMode() === 'id' ? 'number' : 'text'"
+          [min]="searchMode() === 'id' ? 1 : null"
+          [step]="searchMode() === 'id' ? 1 : null"
+          [placeholder]="inputPlaceholder"
+          [(ngModel)]="searchValue"
           (keyup.enter)="search()"
           [disabled]="loading()"
         />
-        <mat-icon matSuffix>tag</mat-icon>
+        <mat-icon matSuffix>{{ inputIcon }}</mat-icon>
       </mat-form-field>
 
       <button
         mat-flat-button
         class="btn-search"
         (click)="search()"
-        [disabled]="loading() || !searchId"
+        [disabled]="loading() || !searchValue"
       >
         <mat-icon [style.display]="loading() ? 'none' : 'inline'">search</mat-icon>
         @if (loading()) {
@@ -40,6 +64,7 @@
         }
       </button>
     </div>
+
   </section>
 
   @if (error()) {
@@ -64,8 +89,9 @@
       <mat-icon class="empty-icon">import_contacts</mat-icon>
       <h3>Consulta el repositorio académico</h3>
       <p>
-        Ingresa el ID de una publicación para ver sus metadatos registrados en blockchain,
-        incluyendo autores, institución, tipo de documento y el enlace a su archivo en IPFS.
+        Selecciona el modo de búsqueda e ingresa el valor correspondiente para ver los metadatos
+        de la publicación registrados en blockchain, incluyendo autores, institución, tipo de
+        documento y el enlace a su archivo en IPFS.
       </p>
     </div>
   }
