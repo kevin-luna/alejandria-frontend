@@ -13,7 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ContractService } from '../../core/services/contract.service';
 import { MetaMaskService } from '../../core/services/metamask.service';
 import { PinataService } from '../../core/services/pinata.service';
@@ -35,7 +35,6 @@ const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    RouterLink,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
