@@ -267,6 +267,9 @@ export class RegisterComponent {
       return 'La transacción fue rechazada desde MetaMask.';
     if (msg.includes('insufficient funds'))
       return 'Fondos insuficientes para pagar el gas.';
+    if (msg.includes('Requested resource not available') || msg.includes('returned too many errors'))
+      return 'El proveedor RPC de MetaMask no está disponible. Ve a MetaMask → Configuración → Redes → Sepolia y cambia el RPC URL a tu endpoint de Infura propio.';
+    console.log(msg);
     return 'Error al registrar la publicación. Revisa la consola para más detalles.';
   }
 
