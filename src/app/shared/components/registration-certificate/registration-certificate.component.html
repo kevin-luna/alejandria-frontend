@@ -6,10 +6,6 @@
       <mat-icon class="action-icon">check_circle</mat-icon>
       <span>Publicación registrada exitosamente</span>
     </div>
-    <button mat-flat-button class="btn-download" (click)="print()">
-      <mat-icon>picture_as_pdf</mat-icon>
-      Descargar certificado
-    </button>
   </div>
 
   <!-- Certificado -->
@@ -110,4 +106,13 @@
     </footer>
 
   </div>
+
+  <!-- Botón de descarga (se oculta al imprimir) -->
+  <div class="download-bar no-print">
+    <button mat-flat-button class="btn-download" (click)="print()">
+      <mat-icon>picture_as_pdf</mat-icon>
+      Descargar certificado
+    </button>
+  </div>
+
 </div>
