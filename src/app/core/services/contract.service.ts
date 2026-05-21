@@ -65,6 +65,26 @@ export class ContractService {
     return result as unknown as Publication;
   }
 
+  async getByHash(contentHash: `0x${string}`): Promise<Publication> {
+    const result = await this.publicClient.readContract({
+      address: this.env.contractAddress,
+      abi: ALEJANDRIA_ABI,
+      functionName: 'getByHash',
+      args: [contentHash],
+    });
+    return result as unknown as Publication;
+  }
+
+  async getByDoi(doi: string): Promise<Publication> {
+    const result = await this.publicClient.readContract({
+      address: this.env.contractAddress,
+      abi: ALEJANDRIA_ABI,
+      functionName: 'getByDoi',
+      args: [doi],
+    });
+    return result as unknown as Publication;
+  }
+
   async getTotalPublications(): Promise<bigint> {
     const result = await this.publicClient.readContract({
       address: this.env.contractAddress,
