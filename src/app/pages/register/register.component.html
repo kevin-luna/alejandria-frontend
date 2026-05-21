@@ -129,7 +129,7 @@
           type="button"
           mat-stroked-button
           class="btn-upload"
-          [disabled]="uploadStep() === 'hashing' || uploadStep() === 'uploading'"
+          [disabled]="uploadStep() === 'hashing' || uploadStep() === 'checking' || uploadStep() === 'uploading'"
           (click)="triggerFileInput(fileInput)"
         >
           <mat-icon>upload_file</mat-icon>
@@ -141,6 +141,10 @@
             @case ('hashing') {
               <mat-spinner diameter="18" />
               <span>Calculando hash SHA-256…</span>
+            }
+            @case ('checking') {
+              <mat-spinner diameter="18" />
+              <span>Verificando si el documento ya está registrado…</span>
             }
             @case ('uploading') {
               <mat-spinner diameter="18" />
@@ -166,12 +170,26 @@
       <!-- Hash fields -->
       <mat-form-field appearance="outline" class="field-full">
         <mat-label>Hash SHA-256 del documento (bytes32) *</mat-label>
-        <input matInput formControlName="contentHash" placeholder="0x…" class="mono-input" />
+        <input matInput formControlName="contentHash" placeholder="0x…" class="mono-input"
+          (blur)="checkHashManually()" />
         <mat-hint>32 bytes en hexadecimal: 0x seguido de 64 caracteres hex</mat-hint>
         @if (form.get('contentHash')?.invalid && form.get('contentHash')?.touched) {
           <mat-error>Debe ser un bytes32 válido (0x + 64 hex).</mat-error>
         }
       </mat-form-field>
+
+      @if (checkingHash()) {
+        <div class="hash-check-status">
+          <mat-spinner diameter="16" />
+          <span>Verificando hash en la blockchain…</span>
+        </div>
+      }
+      @if (duplicateHash()) {
+        <div class="duplicate-warning">
+          <mat-icon>warning</mat-icon>
+          <span>Este documento ya está registrado en la blockchain. No se puede registrar dos veces el mismo archivo.</span>
+        </div>
+      }
 
       <mat-form-field appearance="outline" class="field-full">
         <mat-label>CID de IPFS</mat-label>
@@ -196,7 +214,7 @@
         type="submit"
         mat-flat-button
         class="btn-submit"
-        [disabled]="form.invalid || isSubmitting || !metamask.isConnected()"
+        [disabled]="form.invalid || isBusy || !metamask.isConnected() || duplicateHash()"
       >
         @if (isSubmitting) {
           <mat-spinner diameter="20" />

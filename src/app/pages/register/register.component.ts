@@ -24,7 +24,7 @@ import {
   PublicationType,
 } from '../../core/models/publication.model';
 
-type UploadStep = 'idle' | 'hashing' | 'uploading' | 'done' | 'error';
+type UploadStep = 'idle' | 'hashing' | 'checking' | 'uploading' | 'done' | 'error';
 type SubmitStep = 'idle' | 'simulating' | 'awaiting-wallet' | 'mining' | 'done' | 'error';
 
 const BYTES32_PATTERN = /^0x[0-9a-fA-F]{64}$/;
@@ -61,6 +61,8 @@ export class RegisterComponent {
   readonly uploadStep = signal<UploadStep>('idle');
   readonly uploadError = signal<string | null>(null);
   readonly selectedFileName = signal<string | null>(null);
+  readonly duplicateHash = signal<boolean>(false);
+  readonly checkingHash = signal<boolean>(false);
 
   private readonly certState = inject(CertificateStateService);
   private readonly router    = inject(Router);
@@ -84,6 +86,10 @@ export class RegisterComponent {
 
   get isSubmitting(): boolean {
     return ['simulating', 'awaiting-wallet', 'mining'].includes(this.submitStep());
+  }
+
+  get isBusy(): boolean {
+    return this.isSubmitting || this.uploadStep() === 'checking' || this.checkingHash();
   }
 
   private buildAuthorGroup(): FormGroup {
@@ -126,6 +132,7 @@ export class RegisterComponent {
     this.selectedFileName.set(file.name);
     this.uploadStep.set('hashing');
     this.uploadError.set(null);
+    this.duplicateHash.set(false);
 
     try {
       // Compute SHA-256 using the Web Crypto API
@@ -134,7 +141,18 @@ export class RegisterComponent {
       const hex = Array.from(new Uint8Array(hashBuffer))
         .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
-      this.form.patchValue({ contentHash: `0x${hex}` });
+      const contentHash = `0x${hex}` as `0x${string}`;
+      this.form.patchValue({ contentHash });
+
+      // Verify the hash is not already registered before uploading to IPFS
+      this.uploadStep.set('checking');
+      const alreadyRegistered = await this.isHashRegistered(contentHash);
+      if (alreadyRegistered) {
+        this.duplicateHash.set(true);
+        this.uploadError.set('Este documento ya está registrado en la blockchain.');
+        this.uploadStep.set('error');
+        return;
+      }
 
       // Upload to Pinata
       this.uploadStep.set('uploading');
@@ -150,12 +168,35 @@ export class RegisterComponent {
     }
   }
 
+  async checkHashManually(): Promise<void> {
+    const ctrl = this.form.get('contentHash');
+    if (!ctrl || ctrl.invalid || !ctrl.value) return;
+
+    this.duplicateHash.set(false);
+    this.checkingHash.set(true);
+    try {
+      const alreadyRegistered = await this.isHashRegistered(ctrl.value as `0x${string}`);
+      this.duplicateHash.set(alreadyRegistered);
+    } finally {
+      this.checkingHash.set(false);
+    }
+  }
+
+  private async isHashRegistered(hash: `0x${string}`): Promise<boolean> {
+    try {
+      await this.contract.getByHash(hash);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   triggerFileInput(input: HTMLInputElement): void {
     input.click();
   }
 
   async submit(): Promise<void> {
-    if (this.form.invalid || this.isSubmitting) return;
+    if (this.form.invalid || this.isSubmitting || this.duplicateHash() || this.checkingHash()) return;
     if (!this.metamask.isConnected()) {
       this.submitError.set('Conecta tu wallet MetaMask antes de registrar.');
       return;

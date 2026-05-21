@@ -259,6 +259,37 @@
   text-transform: uppercase;
 }
 
+/* ── Duplicate / hash check ────────────────────────────── */
+.hash-check-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--clr-gray-700);
+  margin: -4px 0 12px;
+}
+
+.duplicate-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  color: #6d4c0f;
+  padding: 12px 16px;
+  margin: -4px 0 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.duplicate-warning mat-icon {
+  color: #f9a825;
+  flex-shrink: 0;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
 /* ── Submit area ───────────────────────────────────────── */
 .submit-error {
   display: flex;
