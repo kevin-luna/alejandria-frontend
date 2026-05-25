@@ -33,6 +33,7 @@ export class RegistrationCertificateComponent implements OnInit {
 
   txQrDataUrl: string | null = null;
   ipfsQrDataUrl: string | null = null;
+  qrLoading = true;
 
   get pubTypeLabel(): string {
     return PUBLICATION_TYPE_LABELS[this.data.pubType as keyof typeof PUBLICATION_TYPE_LABELS] ?? 'Otro';
@@ -58,8 +59,14 @@ export class RegistrationCertificateComponent implements OnInit {
       margin: 1,
       color: { dark: '#1565C0', light: '#FFFFFF' },
     };
-    if (this.txUrl)   this.txQrDataUrl   = await QRCode.toDataURL(this.txUrl,   opts);
-    if (this.ipfsUrl) this.ipfsQrDataUrl = await QRCode.toDataURL(this.ipfsUrl, opts);
+    try {
+      await Promise.all([
+        this.txUrl   ? QRCode.toDataURL(this.txUrl,   opts).then(url => { this.txQrDataUrl   = url; }) : Promise.resolve(),
+        this.ipfsUrl ? QRCode.toDataURL(this.ipfsUrl, opts).then(url => { this.ipfsQrDataUrl = url; }) : Promise.resolve(),
+      ]);
+    } finally {
+      this.qrLoading = false;
+    }
   }
 
   print(): void {

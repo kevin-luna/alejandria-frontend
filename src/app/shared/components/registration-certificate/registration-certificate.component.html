@@ -109,9 +109,9 @@
 
   <!-- Botón de descarga (se oculta al imprimir) -->
   <div class="download-bar no-print">
-    <button mat-flat-button class="btn-download" (click)="print()">
+    <button mat-flat-button class="btn-download" (click)="print()" [disabled]="qrLoading">
       <mat-icon>picture_as_pdf</mat-icon>
-      Descargar certificado
+      {{ qrLoading ? 'Generando códigos QR…' : 'Descargar certificado' }}
     </button>
   </div>
 
