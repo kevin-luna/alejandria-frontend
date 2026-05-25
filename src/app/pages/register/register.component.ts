@@ -213,21 +213,23 @@ export class RegisterComponent {
       .map((a) => a.address?.trim() || null)
       .map((a) => (a && ADDRESS_PATTERN.test(a) ? (a as `0x${string}`) : ('0x0000000000000000000000000000000000000000' as `0x${string}`)));
 
-    this.submitStep.set('simulating');
+    this.submitStep.set('awaiting-wallet');
     this.submitError.set(null);
 
     try {
-      this.submitStep.set('awaiting-wallet');
-      const res = await this.contract.register({
-        title,
-        pubType,
-        institution: institution ?? '',
-        doi: doi ?? '',
-        contentHash: contentHash as `0x${string}`,
-        ipfsHash: ipfsHash ?? '',
-        authorNames,
-        authorAddresses,
-      });
+      const res = await this.contract.register(
+        {
+          title,
+          pubType,
+          institution: institution ?? '',
+          doi: doi ?? '',
+          contentHash: contentHash as `0x${string}`,
+          ipfsHash: ipfsHash ?? '',
+          authorNames,
+          authorAddresses,
+        },
+        () => this.submitStep.set('mining'),
+      );
       this.certState.set({
         publicationId:    res.publicationId,
         txHash:           res.txHash,
@@ -248,6 +250,8 @@ export class RegisterComponent {
       const raw = e instanceof Error ? e.message : String(e);
       this.submitError.set(this.parseContractError(raw));
       this.submitStep.set('error');
+    } finally {
+      if (this.isSubmitting) this.submitStep.set('idle');
     }
   }
 

@@ -94,7 +94,7 @@ export class ContractService {
     return result as bigint;
   }
 
-  async register(params: RegisterParams): Promise<RegisterResult> {
+  async register(params: RegisterParams, onTxHash?: (hash: Hash) => void): Promise<RegisterResult> {
     const account = this.metamask.account();
     if (!account) throw new Error('Conecta tu wallet antes de registrar.');
 
@@ -135,6 +135,8 @@ export class ContractService {
       account,
       args,
     });
+
+    onTxHash?.(txHash);
 
     const receipt = await this.publicClient.waitForTransactionReceipt({ hash: txHash });
 
