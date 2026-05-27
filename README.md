@@ -1,59 +1,108 @@
-# AlejandriaFrontend
+# Alejandría — Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.9.
+Interfaz web de **Alejandría**, un repositorio académico abierto y descentralizado. Permite registrar publicaciones académicas en la blockchain de Sepolia y almacenar los documentos en IPFS, sin depender de servidores centralizados.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+| Tecnología | Versión | Rol |
+|---|---|---|
+| Angular | 21 | Framework principal (SPA) |
+| PrimeNG + Angular Material | 21 / 21 | Componentes UI |
+| TailwindCSS | 4 | Estilos utilitarios |
+| viem | 2 | Interacción con contratos Ethereum |
+| MetaMask Connect-EVM | 1 | Conexión de cartera |
+| Pinata | — | Gateway IPFS para subir documentos |
+| Vitest | 4 | Tests unitarios |
+| Firebase Hosting | — | Despliegue en producción |
 
-```bash
-ng serve
-```
+## Rutas
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| Ruta | Descripción |
+|---|---|
+| `/buscar` | Busca publicaciones por ID o hash de contenido |
+| `/registrar` | Registra una nueva publicación (requiere MetaMask) |
+| `/certificado` | Muestra el certificado de registro de una publicación |
 
-## Code scaffolding
+## Requisitos previos
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Node.js 20+
+- [Angular CLI](https://angular.dev/tools/cli) 21+
+- Extensión **MetaMask** en el navegador, configurada para la red **Sepolia**
+- ETH de prueba en Sepolia (disponible en faucets públicos)
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Desarrollo local
 
 ```bash
-ng test
+npm install
+npm start
 ```
 
-## Running end-to-end tests
+La aplicación queda disponible en `http://localhost:4200/`.
 
-For end-to-end (e2e) testing, run:
+## Variables de entorno
+
+Las configuraciones sensibles se declaran en `src/environments/environment.ts`:
+
+| Variable | Descripción |
+|---|---|
+| `contractAddress` | Dirección del contrato `AlejandriaRegistry` en Sepolia |
+| `rpcUrl` | URL del nodo RPC de Sepolia (Infura u otro) |
+| `chainId` | ID de la cadena (`11155111` para Sepolia) |
+| `pinataJwt` | JWT de Pinata para subir archivos a IPFS |
+| `pinataGatewayUrl` | URL del gateway de Pinata para acceder a los archivos |
+
+> No expongas `pinataJwt` en repositorios públicos en producción. Para producción, usa un proxy backend o variables de entorno en el servidor de CI/CD.
+
+## Contrato desplegado
+
+| Red | Dirección |
+|---|---|
+| Sepolia Testnet | [`0xD54baC82fEDC77c1f74DDC4137A36398694F14CA`](https://sepolia.etherscan.io/address/0xD54baC82fEDC77c1f74DDC4137A36398694F14CA) |
+
+## Build de producción
 
 ```bash
-ng e2e
+npm run build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Los artefactos se generan en `dist/`. Firebase Hosting los toma desde ahí:
 
-## Additional Resources
+```bash
+firebase deploy
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Tests
+
+```bash
+npm test
+```
+
+Ejecuta los tests unitarios con Vitest.
+
+## Estructura del proyecto
+
+```
+src/app/
+├── core/
+│   ├── models/          # Modelos de datos (Publication, ABI del contrato)
+│   └── services/        # contract, metamask, pinata, certificate-state, env, text-normalizer
+├── pages/
+│   ├── register/        # Formulario de registro de publicación
+│   ├── search/          # Búsqueda por ID
+│   └── certificate/     # Vista del certificado de registro
+└── shared/
+    └── components/      # navbar, publication-card, pub-type-badge, registration-certificate
+```
+
+## Flujo principal
+
+1. Usuario conecta MetaMask (`/registrar`).
+2. Completa los metadatos de la publicación y sube el PDF.
+3. El frontend sube el PDF a IPFS via Pinata y obtiene el CID.
+4. Se calcula el SHA-256 del documento como `contentHash`.
+5. Se llama a `AlejandriaRegistry.register()` firmando con MetaMask.
+6. La transacción queda confirmada en Sepolia y se genera el certificado.
+
+---
+
+> Red: Sepolia Testnet &nbsp;|&nbsp; Estado: En desarrollo
