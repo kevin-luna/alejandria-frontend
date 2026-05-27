@@ -82,17 +82,17 @@
     <footer class="cert-footer">
       <div class="cert-divider"></div>
 
-      @if (txQrDataUrl || ipfsQrDataUrl) {
+      @if (txQrDataUrl() || ipfsQrDataUrl()) {
         <div class="qr-row">
-          @if (txQrDataUrl) {
+          @if (txQrDataUrl()) {
             <div class="qr-item">
-              <img [src]="txQrDataUrl" alt="QR transacción" class="qr-img" />
+              <img [src]="txQrDataUrl()" alt="QR transacción" class="qr-img" />
               <span class="qr-label">Verificar transacción</span>
             </div>
           }
-          @if (ipfsQrDataUrl) {
+          @if (ipfsQrDataUrl()) {
             <div class="qr-item">
-              <img [src]="ipfsQrDataUrl" alt="QR IPFS" class="qr-img" />
+              <img [src]="ipfsQrDataUrl()" alt="QR IPFS" class="qr-img" />
               <span class="qr-label">Documento en IPFS</span>
             </div>
           }
@@ -109,9 +109,9 @@
 
   <!-- Botón de descarga (se oculta al imprimir) -->
   <div class="download-bar no-print">
-    <button mat-flat-button class="btn-download" (click)="print()" [disabled]="qrLoading">
+    <button mat-flat-button class="btn-download" (click)="print()" [disabled]="qrLoading()">
       <mat-icon>picture_as_pdf</mat-icon>
-      {{ qrLoading ? 'Generando códigos QR…' : 'Descargar certificado' }}
+      {{ qrLoading() ? 'Generando códigos QR…' : 'Descargar certificado' }}
     </button>
   </div>
 

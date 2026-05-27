@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import QRCode from 'qrcode';
@@ -31,9 +31,9 @@ export class RegistrationCertificateComponent implements OnInit {
 
   private readonly env = inject(EnvService);
 
-  txQrDataUrl: string | null = null;
-  ipfsQrDataUrl: string | null = null;
-  qrLoading = true;
+  txQrDataUrl = signal<string | null>(null);
+  ipfsQrDataUrl = signal<string | null>(null);
+  qrLoading = signal(true);
 
   get pubTypeLabel(): string {
     return PUBLICATION_TYPE_LABELS[this.data.pubType as keyof typeof PUBLICATION_TYPE_LABELS] ?? 'Otro';
@@ -61,11 +61,11 @@ export class RegistrationCertificateComponent implements OnInit {
     };
     try {
       await Promise.all([
-        this.txUrl   ? QRCode.toDataURL(this.txUrl,   opts).then(url => { this.txQrDataUrl   = url; }) : Promise.resolve(),
-        this.ipfsUrl ? QRCode.toDataURL(this.ipfsUrl, opts).then(url => { this.ipfsQrDataUrl = url; }) : Promise.resolve(),
+        this.txUrl   ? QRCode.toDataURL(this.txUrl,   opts).then(url => { this.txQrDataUrl.set(url);   }) : Promise.resolve(),
+        this.ipfsUrl ? QRCode.toDataURL(this.ipfsUrl, opts).then(url => { this.ipfsQrDataUrl.set(url); }) : Promise.resolve(),
       ]);
     } finally {
-      this.qrLoading = false;
+      this.qrLoading.set(false);
     }
   }
 
